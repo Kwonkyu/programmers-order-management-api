@@ -1,5 +1,7 @@
 package com.github.prgrms.configures.web;
 
+import static org.apache.commons.lang3.ObjectUtils.*;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -34,9 +36,12 @@ public class SimplePageRequestHandlerMethodArgumentResolver implements HandlerMe
   ) {
     String offsetString = webRequest.getParameter(offsetParameterName);
     String sizeString = webRequest.getParameter(sizeParameterName);
-
-    // TODO 구현이 필요 합니다.
-    throw new UnsupportedOperationException("SimplePageRequest 인스턴스를 리턴하도록 구현 필요");
+    int offset = Integer.parseInt(defaultIfNull(offsetString, String.valueOf(DEFAULT_OFFSET)));
+    offset = Math.max(offset, 0);
+    int size = Integer.parseInt(defaultIfNull(sizeString, String.valueOf(DEFAULT_SIZE)));
+    size = Math.max(size, 1);
+    size = Math.min(size, 5);
+    return new SimplePageRequest(offset, size);
   }
 
   public void setOffsetParameterName(String offsetParameterName) {
