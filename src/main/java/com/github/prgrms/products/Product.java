@@ -48,6 +48,10 @@ public class Product {
     this.createAt = defaultIfNull(createAt, now());
   }
 
+  public void incrementReviewCount() {
+    reviewCount++;
+  }
+
   public void setName(String name) {
     checkArgument(isNotEmpty(name), "name must be provided");
     checkArgument(

@@ -4,6 +4,7 @@ import static com.github.prgrms.utils.DateTimeUtils.*;
 
 import com.github.prgrms.utils.DateTimeUtils;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,7 +26,8 @@ public class JdbcReviewRepository implements ReviewRepository {
 		GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(
-				"INSERT INTO reviews(user_seq, product_seq, content, create_at) VALUES (?, ?, ?, ?)");
+				"INSERT INTO reviews(user_seq, product_seq, content, create_at) VALUES (?, ?, ?, ?)",
+				Statement.RETURN_GENERATED_KEYS);
 			statement.setLong(1, review.getUserId());
 			statement.setLong(2, review.getProductId());
 			statement.setString(3, review.getContent());
@@ -52,10 +54,10 @@ public class JdbcReviewRepository implements ReviewRepository {
 
 	static RowMapper<Review> rowMapper = (rs, rowNum) ->
 		new Review.Builder()
-		.seq(rs.getLong("seq"))
-		.userId(rs.getLong("user_seq"))
-		.productId(rs.getLong("product_seq"))
+		.seq(rs.getObject("seq", Long.class))
+		.userId(rs.getObject("user_seq", Long.class))
+		.productId(rs.getObject("product_seq", Long.class))
 		.content(rs.getString("content"))
-		.createdAt(dateTimeOf(rs.getTimestamp("created_at")))
+		.createdAt(dateTimeOf(rs.getTimestamp("create_at")))
 		.build();
 }

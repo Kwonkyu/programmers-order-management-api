@@ -9,4 +9,6 @@ public interface ProductRepository {
 
   List<Product> findAll();
 
+  Product update(Product product);
+
 }

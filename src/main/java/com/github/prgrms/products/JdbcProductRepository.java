@@ -1,5 +1,6 @@
 package com.github.prgrms.products;
 
+import java.sql.PreparedStatement;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -35,6 +36,20 @@ public class JdbcProductRepository implements ProductRepository {
       "SELECT * FROM products ORDER BY seq DESC",
       mapper
     );
+  }
+
+  @Override
+  public Product update(Product product) {
+    jdbcTemplate.update(connection -> {
+      PreparedStatement statement = connection.prepareStatement(
+          "UPDATE products SET name=?, details=?, review_count=? WHERE seq=?");
+      statement.setString(1, product.getName());
+      statement.setString(2, product.getDetails().orElse(null));
+      statement.setInt(3, product.getReviewCount());
+      statement.setLong(4, product.getSeq());
+      return statement;
+    });
+    return product;
   }
 
   static RowMapper<Product> mapper = (rs, rowNum) ->

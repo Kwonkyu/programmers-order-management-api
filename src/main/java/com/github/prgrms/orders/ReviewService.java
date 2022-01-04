@@ -1,8 +1,11 @@
 package com.github.prgrms.orders;
 
 import static com.google.common.base.Preconditions.*;
+import static org.apache.commons.lang3.ObjectUtils.*;
 
 import com.github.prgrms.errors.NotFoundException;
+import com.github.prgrms.products.ProductService;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,37 +15,45 @@ public class ReviewService {
 
 	private final ReviewRepository reviewRepository;
 	private final OrderRepository orderRepository;
+	private final ProductService productService;
 
 	public ReviewService(
 		ReviewRepository reviewRepository,
-		OrderRepository orderRepository
+		OrderRepository orderRepository,
+		ProductService productService
 	) {
 		this.reviewRepository = reviewRepository;
 		this.orderRepository = orderRepository;
+		this.productService = productService;
 	}
 
 	public Review createReview(Long userId, Long orderId, String content) {
-		checkNotNull(userId, "user id cannot be null.");
-		checkNotNull(orderId, "order id cannot be null.");
-		checkNotNull(content, "review content cannot be null.");
+		checkArgument(isNotEmpty(userId), "user id cannot be null.");
+		checkArgument(isNotEmpty(orderId), "order id cannot be null.");
+		checkArgument(isNotEmpty(content), "review content cannot be null.");
 
-		Order order = orderRepository.findById(orderId)
-									 .orElseThrow(() -> new NotFoundException("order not found."));
-		if(order.isReviewed()) {
-			throw new IllegalArgumentException(String.format(
-				"Could not write review for order %d because have already written",
-				orderId));
-		}
-
-		if(!order.isReviewable()) {
-			throw new IllegalArgumentException(String.format(
-				"Could not write review for order %d because state(REQUESTED) is not allowed",
-				orderId
+		ProductOrder productOrder = orderRepository.findById(orderId)
+												   .orElseThrow(() -> new NotFoundException("order not found."));
+		checkArgument(isEmpty(productOrder.getReview()), "order can be reviewed only once.");
+		Review review = reviewRepository.save(
+			new Review(
+				userId,
+				productOrder.getProductId(),
+				content
 			));
+		productOrder.setReview(review);
+		productService.incrementReviewCount(productOrder.getProductId());
+		orderRepository.update(productOrder);
+		return review;
+	}
+
+	@Transactional(readOnly = true)
+	public Optional<Review> findOptionalReviewById(Long reviewId) {
+		if (reviewId == null) {
+			return Optional.empty();
 		}
 
-		Review review = new Review(userId, order.getProductId(), content);
-		return reviewRepository.save(review);
+		return reviewRepository.findById(reviewId);
 	}
 
 }
