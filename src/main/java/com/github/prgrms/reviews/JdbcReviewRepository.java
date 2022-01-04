@@ -1,4 +1,4 @@
-package com.github.prgrms.orders;
+package com.github.prgrms.reviews;
 
 import static com.github.prgrms.utils.DateTimeUtils.*;
 

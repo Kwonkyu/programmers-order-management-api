@@ -1,4 +1,4 @@
-package com.github.prgrms.orders;
+package com.github.prgrms.reviews;
 
 import static com.google.common.base.Preconditions.*;
 import static org.apache.commons.lang3.ObjectUtils.*;

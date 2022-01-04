@@ -1,4 +1,4 @@
-package com.github.prgrms.orders;
+package com.github.prgrms.reviews;
 
 import java.time.LocalDateTime;
 import org.springframework.beans.BeanUtils;

@@ -1,4 +1,4 @@
-package com.github.prgrms.orders;
+package com.github.prgrms.reviews;
 
 public class ReviewRequest {
 	private String content;

@@ -3,6 +3,7 @@ package com.github.prgrms.orders;
 import static com.google.common.base.Preconditions.*;
 import static org.apache.commons.lang3.ObjectUtils.*;
 
+import com.github.prgrms.reviews.Review;
 import java.time.LocalDateTime;
 
 public class ProductOrder {
